@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>NexTask — Smart Task Manager</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+ 
+<div class="app">
+ 
+  <!-- ==============================
+       SIDEBAR
+  ============================== -->
+  <aside class="sidebar" id="sidebar">
+ 
+    <!-- Brand -->
+    <div class="sidebar-brand">
+      <div class="brand-icon">⚡</div>
+      <div>
+        <h1 class="brand-name">NexTask</h1>
+        <p class="brand-sub">Smart Productivity</p>
+      </div>
+    </div>
+ 
+    <!-- Progress Ring -->
+    <div class="ring-section">
+      <div class="ring-wrap">
+        <svg class="progress-ring" viewBox="0 0 120 120">
+          <circle class="ring-bg"   cx="60" cy="60" r="50"/>
+          <circle class="ring-fill" cx="60" cy="60" r="50" id="ringFill"/>
+        </svg>
+        <div class="ring-label">
+          <span class="ring-pct" id="ringPct">0%</span>
+          <span class="ring-txt">Done</span>
+        </div>
+      </div>
+    </div>
+ 
+    <div class="sidebar-divider"></div>
+ 
+    <!-- Live Metrics -->
+    <div class="metrics-section">
+      <p class="section-label">Live Metrics</p>
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <span class="metric-icon">📊</span>
+          <span class="metric-val" id="metricMomentum">0%</span>
+          <span class="metric-label">Momentum</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-icon">🔥</span>
+          <span class="metric-val" id="metricStreak">0</span>
+          <span class="metric-label">Day Streak</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-icon">📅</span>
+          <span class="metric-val" id="metricDueToday">0</span>
+          <span class="metric-label">Due Today</span>
+        </div>
+      </div>
+    </div>
+ 
+    <div class="sidebar-divider"></div>
+ 
+    <!-- Milestone Badge -->
+    <div class="milestone-section">
+      <p class="section-label">Your Rank</p>
+      <div class="milestone-badge" id="milestoneBadge">
+        <span class="milestone-icon" id="milestoneIcon">🌱</span>
+        <div>
+          <span class="milestone-name" id="milestoneName">Beginner</span>
+          <span class="milestone-count">
+            <span id="allTimeCount">0</span> total completions
+          </span>
+        </div>
+      </div>
+      <!-- Milestone progress bar -->
+      <div class="milestone-progress">
+        <div class="milestone-bar" id="milestoneBar"></div>
+      </div>
+      <p class="milestone-next" id="milestoneNext">10 more to next rank</p>
+    </div>
+ 
+    <div class="sidebar-divider"></div>
+ 
+    <!-- Quick Filters / Nav -->
+    <div class="nav-section">
+      <p class="section-label">Quick View</p>
+      <ul class="nav-list">
+        <li><button class="nav-btn active" data-filter="all"      onclick="setNavFilter('all')">      📋 All Tasks</button></li>
+        <li><button class="nav-btn"        data-filter="today"    onclick="setNavFilter('today')">    📅 Due Today</button></li>
+        <li><button class="nav-btn"        data-filter="daily"    onclick="setNavFilter('daily')">    🔄 Daily Tasks</button></li>
+        <li><button class="nav-btn"        data-filter="weekly"   onclick="setNavFilter('weekly')">   📆 Weekly Tasks</button></li>
+        <li><button class="nav-btn"        data-filter="overdue"  onclick="setNavFilter('overdue')">  ⚠️ Overdue</button></li>
+      </ul>
+    </div>
+ 
+    <!-- Sidebar footer -->
+    <div class="sidebar-footer">
+      💾 Data saved locally
+    </div>
+ 
+  </aside>
+ 
+ 
+  <!-- ==============================
+       MAIN CONTENT
+  ============================== -->
+  <main class="main">
+ 
+    <!-- Top Bar -->
+    <div class="topbar">
+      <div class="topbar-left">
+        <h2 class="page-title" id="pageTitle">All Tasks</h2>
+        <span class="task-count" id="taskCount">0 tasks</span>
+      </div>
+      <div class="topbar-right">
+        <!-- Search -->
+        <div class="search-wrap">
+          <span class="search-icon">🔍</span>
+          <input
+            type="text"
+            class="search-input"
+            id="searchInput"
+            placeholder="Search tasks..."
+            oninput="renderTasks()"
+          />
+        </div>
+        <!-- Mobile sidebar toggle -->
+        <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+      </div>
+    </div>
+ 
+    <!-- Status Filter Tabs -->
+    <div class="filter-tabs">
+      <button class="filter-tab active" data-status="all"       onclick="setStatusFilter('all')">      All</button>
+      <button class="filter-tab"        data-status="pending"   onclick="setStatusFilter('pending')">  Pending</button>
+      <button class="filter-tab"        data-status="completed" onclick="setStatusFilter('completed')">Completed</button>
+    </div>
+ 
+    <!-- Add Task Form -->
+    <div class="form-card" id="formCard">
+      <div class="form-header">
+        <h3 class="form-title">➕ Add New Task</h3>
+        <button class="form-toggle-btn" id="formToggleBtn" onclick="toggleForm()">▲ Hide</button>
+      </div>
+ 
+      <div class="form-body" id="formBody">
+        <div class="form-row">
+          <!-- Task title -->
+          <div class="form-group form-group-title">
+            <label for="inputTitle">Task Title</label>
+            <input
+              type="text"
+              id="inputTitle"
+              placeholder="e.g. Morning Exercise"
+              maxlength="80"
+            />
+          </div>
+ 
+          <!-- Task type -->
+          <div class="form-group">
+            <label for="inputType">Type</label>
+            <select id="inputType" onchange="toggleWeeklyGoal()">
+              <option value="onetime">🔵 One-Time</option>
+              <option value="daily">🟡 Daily</option>
+              <option value="weekly">🟣 Weekly</option>
+            </select>
+          </div>
+ 
+          <!-- Weekly goal (conditional) -->
+          <div class="form-group" id="weeklyGoalGroup" style="display:none">
+            <label for="inputGoal">Weekly Goal</label>
+            <input
+              type="number"
+              id="inputGoal"
+              placeholder="e.g. 3"
+              min="1"
+              max="7"
+              value="3"
+            />
+          </div>
+ 
+          <!-- Due date -->
+          <div class="form-group">
+            <label for="inputDue">Due Date <span class="optional">(optional)</span></label>
+            <input type="date" id="inputDue" />
+          </div>
+ 
+          <!-- Submit -->
+          <div class="form-group form-group-btn">
+            <label>&nbsp;</label>
+            <button class="btn-add" onclick="addTask()">+ Add Task</button>
+          </div>
+        </div>
+      </div>
+    </div>
+ 
+    <!-- Task List -->
+    <div class="task-list" id="taskList">
+      <!-- Cards rendered here by JS -->
+    </div>
+ 
+  </main>
+ 
+</div>
+ 
+<!-- ==============================
+     EDIT MODAL
+============================== -->
+<div class="modal-overlay hidden" id="modalOverlay" onclick="closeModal(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>✏️ Edit Task</h3>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Task Title</label>
+        <input type="text" id="editTitle" placeholder="Task title" maxlength="80"/>
+      </div>
+      <div class="form-group">
+        <label>Type</label>
+        <select id="editType" onchange="toggleEditWeeklyGoal()">
+          <option value="onetime">🔵 One-Time</option>
+          <option value="daily">🟡 Daily</option>
+          <option value="weekly">🟣 Weekly</option>
+        </select>
+      </div>
+      <div class="form-group" id="editWeeklyGoalGroup" style="display:none">
+        <label>Weekly Goal</label>
+        <input type="number" id="editGoal" min="1" max="7" value="3"/>
+      </div>
+      <div class="form-group">
+        <label>Due Date <span class="optional">(optional)</span></label>
+        <input type="date" id="editDue"/>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="btn-save"   onclick="saveEdit()">Save Changes</button>
+    </div>
+  </div>
+</div>
+ 
+<script src="script.js"></script>
+</body>
+</html>
